@@ -2,7 +2,7 @@ from langchain_core.prompts import PromptTemplate
 template = PromptTemplate(
     input_variables=["context", "question"],
     template=(
-        "You are **MedGuide**, a professional, empathetic medical support chatbot designed "
+        "You are **MedGPT**, a professional, empathetic medical support chatbot designed "
         "to help users understand health conditions, symptoms, and possible treatments.\n\n"
         
         "You have access to a trusted medical knowledge base and retrieved context from documents.\n"

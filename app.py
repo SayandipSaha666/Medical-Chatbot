@@ -23,6 +23,7 @@ vector_store = PineconeVectorStore.from_existing_index(
 
 retriever = get_retriever(vector_store,llm)
 parser = StrOutputParser()
+
 chain = create_chain(retriever,llm,parser,template)
 
 @app.route("/")
