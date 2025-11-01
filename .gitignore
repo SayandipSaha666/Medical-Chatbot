@@ -209,3 +209,8 @@ __marimo__/
 
 # Ignore virtual environments
 .myenv/
+
+# Ignore specific files
+data/imports.py
+data/libraries.txt
+semantic_chunks.pkl
