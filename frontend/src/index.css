@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Hide scrollbar (Chrome, Safari, Edge) */
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar (Firefox) */
+.scroll-container {
+  scrollbar-width: none;
+}
+
+.message{
+  padding: 20px;
+
+  &.user{
+      background-color: #2c2937;
+      border-radius: 20px;
+      max-width: 80%;
+      align-self: flex-end;
+  }
+}
