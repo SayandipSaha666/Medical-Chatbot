@@ -1,0 +1,255 @@
+# 🩺 MedGPT – RAG-based Medical Question Answering System
+
+MedGPT is a full-stack **Retrieval-Augmented Generation (RAG)** powered medical question-answering chatbot.  
+It uses **FastAPI** as the backend, **React (Vite)** as the frontend, **Clerk** for authentication, **Pinecone** as the vector database, and supports **image uploads via ImageKit**.
+
+The system allows authenticated users to create chats, ask medical questions, receive context-aware answers sourced from medical documents, and maintain chat history.
+
+---
+
+## 🚀 Features
+
+### 🔐 Authentication
+- Secure authentication using **Clerk**
+- JWT-based backend authorization
+- Automatic user creation in backend DB on first login
+
+### 💬 Chat System
+- Create multiple chats per user
+- Persistent chat history (user + assistant messages)
+- Each chat is user-scoped and protected
+
+### 🧠 RAG Pipeline
+- Semantic retrieval using **Pinecone**
+- Contextual compression for better answers
+- LLM-generated responses with markdown support
+- Source metadata stored per response
+
+### 📡 Streaming (Optional)
+- Token-based streaming responses via SSE
+- Real-time answer generation
+
+### 🖼️ Image Uploads
+- Upload images inside chat using **ImageKit**
+- Images stored securely and linked to users
+- Metadata saved in the database
+
+---
+
+## 🛠 Tech Stack
+
+### Backend
+- **FastAPI**
+- **SQLAlchemy + PostgreSQL**
+- **LangChain**
+- **Pinecone**
+- **Clerk (JWT verification)**
+- **ImageKit**
+- **Gunicorn + Uvicorn Workers**
+
+### Frontend
+- **React (Vite)**
+- **React Router**
+- **@clerk/clerk-react**
+- **TanStack Query**
+- **Tailwind CSS**
+
+---
+
+## 📁 Project Structure
+```
+  MedGPT/
+  ├── backend/
+  │   ├── app/
+  │   │   ├── main.py
+  │   │   ├── models.py
+  │   │   ├── Schemas.py
+  │   │   ├── database.py
+  │   │   ├── routers/
+  │   │   │   ├── users.py
+  │   │   │   ├── chats.py
+  │   │   │   ├── messages.py
+  │   │   │   └── images.py
+  │   │   ├── services/
+  │   │   │   ├── langchain_chain.py
+  │   │   │   └── imagekit_service.py
+  │   │   └── dependencies/
+  │   │       └── clerk_auth.py
+  │   ├── requirements.txt
+  │   └── .env
+  │
+  ├── frontend/
+  │   ├── src/
+  │   │   ├── pages/
+  │   │   │   └── ChatPage.jsx
+  │   │   ├── components/
+  │   │   ├── services/
+  │   │   │   └── chatService.jsx
+  │   │   └── main.jsx
+  │   ├── .env
+  │   └── package.json
+  │
+  └── README.md
+ ```
+
+ 
+---
+
+## ⚙️ Environment Variables
+
+### Backend (`backend/.env`)
+```env
+PINECONE_API_KEY=your_pinecone_key
+GROQ_API_KEY=your_gro_cloud_key
+HUGGINGFACEHUB_ACCESS_TOKEN=your_token
+DATABASE_URL=postgresql://user:password@hostname:port/db_name
+CLERK_ISSUER=https://your-app.clerk.accounts.dev
+CLERK_JWKS_URL=jwks_url
+IMAGEKIT_PUBLIC_KEY=your_public_key
+IMAGEKIT_PRIVATE_KEY=your_private_key
+IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_id
+```
+
+
+---
+
+### Frontend (`frontend/.env`)
+```env
+VITE_API_BASE_URL=http://localhost:8000
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_key_here
+VITE_IMAGE_KIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
+VITE_IMAGE_KIT_PUBLIC_KEY=your_imagekit_public_key
+VITE_IMAGE_KIT_PRIVATE_KEY=your_imagekit_private_key
+
+```
+⚠️ **Restart the dev server after changing `.env` files**
+
+---
+
+## 🔐 Clerk Setup (Required)
+
+1. Go to **Clerk Dashboard**
+2. Open your application
+3. Navigate to **JWT Templates**
+4. Create a new template:
+
+   * **Name:** `backend`
+   * **Audience:** `fastapi`
+   * **Algorithm:** RS256
+5. Save
+
+Frontend token usage:
+
+```js
+const token = await getToken({ template: "backend" });
+```
+
+---
+
+## ▶️ Running the Project
+
+### Backend (Development)
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+### Backend (Production)
+
+```bash
+gunicorn app.main:app \
+  -k uvicorn.workers.UvicornWorker \
+  --workers 2 \
+  --threads 4 \
+  --timeout 120
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs at:
+👉 `http://localhost:5173`
+Backend runs at:
+👉 `http://localhost:8000`
+
+---
+
+## 📡 API Routes
+
+### Health
+
+```
+GET /health
+```
+
+### Chats
+
+```
+GET    /api/chats
+POST   /api/chats
+GET    /api/chats/{chat_id}
+```
+
+### Messages
+
+```
+GET    /api/chats/{chat_id}/messages
+POST   /api/chats/{chat_id}/messages
+POST   /api/chats/{chat_id}/messages/stream
+```
+
+### Images
+
+```
+POST   /api/images/upload
+```
+
+---
+
+## 🧪 Debugging Tips
+
+* If you see `Unexpected token '<'` → wrong API base URL
+* If you see `Invalid Clerk token` → JWT template or verifier issue
+* If health check fails → check trailing slashes in env vars
+* Always restart Vite after `.env` changes
+
+---
+
+## 📌 Roadmap
+
+* [ ] Document upload for RAG
+* [ ] Role-based access (doctor/admin)
+* [ ] Chat search & tagging
+* [ ] PDF + image-aware prompts
+* [ ] Deployment on Render / AWS / GCP
+
+---
+
+## 📜 License
+
+This project is for educational and research purposes.
+Not intended for real medical diagnosis or treatment.
+
+---
+
+## 🙌 Acknowledgements
+
+* LangChain
+* Pinecone
+* Clerk
+* ImageKit
+* FastAPI
+* Open-source community
+
+---
+
+**Built with ❤️ for learning and innovation**
