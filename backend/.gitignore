@@ -222,3 +222,4 @@ celery_worker.py
 railway.toml
 render.yaml
 .requirements.txt
+.README.md
