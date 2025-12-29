@@ -101,16 +101,50 @@ def get_retriever(vector_store,llm):
     )
     return retriever
 
-def create_chain(retriever,llm,parser,template):
+def extract_sources(docs):
+    sources = []
+    for doc in docs:
+        sources.append({
+            "score": doc.metadata.get("score"),
+            "snippet": doc.page_content[:300],
+            "source": doc.metadata.get("source")
+        })
+    return sources
 
-    parallel_chain = RunnableParallel({
-        "question": RunnablePassthrough(),
-        "context": retriever | RunnableLambda(lambda context: "\n\n".join(doc.page_content for doc in context))
-    })
+# def create_chain(retriever,llm,parser,template):
 
-    chain = parallel_chain | template | llm | parser 
+#     parallel_chain = RunnableParallel({
+#         "question": RunnablePassthrough(),
+#         "context": retriever | RunnableLambda(lambda context: "\n\n".join(doc.page_content for doc in context))
+#     })
+
+#     chain = parallel_chain | template | llm | parser 
+
+#     return chain
+
+def create_chain(retriever, llm, parser, template):
+
+    def format_context(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+
+    chain = (
+        RunnableParallel({
+            "question": RunnablePassthrough(),
+            "docs": retriever
+        })
+        | RunnableLambda(lambda x: {
+            "question": x["question"],
+            "context": format_context(x["docs"]),
+            "sources": extract_sources(x["docs"])
+        })
+        | RunnableLambda(lambda x: {
+            "answer": parser.invoke(llm.invoke(template.format(**x))),
+            "sources": x["sources"]
+        })
+    )
 
     return chain
+
 
 def markdown_to_text(md_text: str) -> str:
     # Remove bold and italics

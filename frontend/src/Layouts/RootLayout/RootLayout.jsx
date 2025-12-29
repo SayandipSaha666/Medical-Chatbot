@@ -1,6 +1,5 @@
 import React from 'react'
 import {Link,Outlet} from 'react-router-dom'
-import { ClerkProvider } from '@clerk/clerk-react'
 import { SignedOut, SignedIn } from '@clerk/clerk-react'
 import { SignInButton, UserButton } from '@clerk/clerk-react'
 // Import your Publishable Key
@@ -12,7 +11,6 @@ if (!PUBLISHABLE_KEY) {
 
 function RootLayout() {
   return (
-     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
         <div className="py-4 px-16 h-screen flex flex-col">
             <header className='flex align-center justify-between'>
                 <Link to="/" className='flex items-center font-bold gap-2'>
@@ -32,7 +30,6 @@ function RootLayout() {
                 <Outlet/>
             </main>
         </div>
-    </ClerkProvider>
   )
 }
 
