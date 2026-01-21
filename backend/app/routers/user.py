@@ -32,7 +32,7 @@ async def update_user(user: Schemas.UserIn,db: Session = Depends(get_db),current
     db.commit()
     return existing_user_query.first()
 # creating new user
-@router.post('/',status_code=status.HTTP_201_CREATED,response_model = Schemas.UserResponse)
+@router.post('/signup',status_code=status.HTTP_201_CREATED,response_model = Schemas.UserResponse)
 async def create_user(user: Schemas.UserSignup,db: Session = Depends(get_db)):
     hashed_password = utils.hash_password(user.password)
     user.password = hashed_password
