@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     pinecone_api_key: str
     groq_api_key: str
     huggingfacehub_access_token: str
-    port: int = 8080
+    port: int
     database_username: str
     database_password: str
     database_hostname: str
@@ -17,9 +17,9 @@ class Settings(BaseSettings):
     sqlalchemy_database_url: Optional[str] = None
     clerk_jwks_url: str
     clerk_issuer: str
+    imagekit_url_endpoint: str
     imagekit_public_key: str
     imagekit_private_key: str
-    imagekit_url_endpoint: str
 
     class Config:
         env_file = ".env"

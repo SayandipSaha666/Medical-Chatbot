@@ -9,9 +9,10 @@ class UserIn(BaseModel):
 
 class UserResponse(BaseModel):
     id: int
-    clerk_user_id: str
+    # clerk_user_id: str
     name: str
     email: EmailStr
+    password: str
     model_config = ConfigDict(from_attributes=True) 
 
 class ChatCreate(BaseModel):
@@ -24,8 +25,7 @@ class ChatResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ChatDetail(ChatResponse):
     messages: List["MessageOut"]
@@ -44,7 +44,25 @@ class MessageOut(BaseModel):
     parent_message_id: Optional[int] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 ChatDetail.model_rebuild()
+
+# remove if working with clerk
+class UserSignup(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    id: Optional[int] = None
+    email: Optional[str] = None
+    # model_config = ConfigDict(from_attributes=True)

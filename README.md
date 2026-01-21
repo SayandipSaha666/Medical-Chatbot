@@ -1,5 +1,5 @@
 # 🩺 MedGPT – RAG-based Medical Question Answering System
-
+<!-- https://chatgpt.com/c/694f914a-6e10-8323-a9ac-ebb798cd3457 -->
 MedGPT is a full-stack **Retrieval-Augmented Generation (RAG)** powered medical question-answering chatbot.  
 It uses **FastAPI** as the backend, **React (Vite)** as the frontend, **Clerk** for authentication, **Pinecone** as the vector database, and supports **image uploads via ImageKit**.
 

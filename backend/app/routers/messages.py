@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 import markdown
 from ..database import get_db
-from ..dependencies.clerk_auth import get_current_user
+# from ..dependencies.clerk_auth import get_current_user
+from ..dependencies.oauth2 import get_current_user
 from ..Schemas import MessageCreate, MessageOut
 from .. import models   
 from ..services.langchain_chain import get_chain,invoke_chain_async
@@ -15,7 +16,7 @@ router = APIRouter(
     tags=["Messages"]
 )
 
-@router.get("/", response_model=list[MessageOut])
+@router.get("", response_model=list[MessageOut])
 def get_messages(
     chat_id: int,
     db: Session = Depends(get_db),
@@ -37,7 +38,7 @@ def get_messages(
     )
 
 
-@router.post("/", response_model=MessageOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=MessageOut, status_code=status.HTTP_201_CREATED)
 async def send_message(
     chat_id: int,
     data: MessageCreate,

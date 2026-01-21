@@ -7,8 +7,9 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    clerk_user_id = Column(String, unique=True, nullable=False, index=True)
+    # clerk_user_id = Column(String, unique=True, nullable=False, index=True)
     email = Column(String, nullable=True)
+    password = Column(String, nullable=True)
     name = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
 

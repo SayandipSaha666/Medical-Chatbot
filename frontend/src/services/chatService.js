@@ -4,6 +4,10 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 export const sendMessage = async ({ chatId, message, token }) => {
   console.log("[FRONTEND] Sending message:", message);
     console.log("Clerk token:", token);
+  console.log(
+    "Calling API:",
+    `${API_URL}/api/chats/${chatId}/messages`
+  );
 
   const response = await fetch(
     `${API_URL}/api/chats/${chatId}/messages`,
@@ -33,9 +37,16 @@ export const sendMessage = async ({ chatId, message, token }) => {
 };
 
 export const checkBackendHealth = async () => {
-  const response = await fetch(`${API_URL}/health`);
-  if (!response.ok) {
-    throw new Error(`Backend health check failed: ${response.statusText}`);
+  try {
+    console.log("Checking backend health...", API_URL);
+    const response = await fetch(`${API_URL}/health`);
+    console.log("Backend health check response:", response);
+    if (!response.ok) {
+      throw new Error(`Backend health check failed: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.log("Backend health check error:", error);
+    throw error;
   }
-  return await response.json();
 };

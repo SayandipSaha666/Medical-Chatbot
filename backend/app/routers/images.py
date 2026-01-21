@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.database import get_db
-from app.dependencies.clerk_auth import get_current_user
+# from app.dependencies.clerk_auth import get_current_user
+from ..dependencies.oauth2 import get_current_user
 from app.services.imagekit_service import upload_image
 from app import models
 

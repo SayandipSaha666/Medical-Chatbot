@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from .. import models
 from ..database import get_db
-from ..dependencies.clerk_auth import get_current_user
+# from ..dependencies.clerk_auth import get_current_user
+from ..dependencies.oauth2 import get_current_user
 from ..Schemas import ChatCreate, ChatResponse,ChatDetail
 from .. import models
 
@@ -42,7 +43,7 @@ def get_chats(
     )
     return chats
 
-
+# should render all the messages under this chat_id
 @router.get("/{chat_id}", response_model=ChatDetail)
 def get_chat(
     chat_id: int,
@@ -92,7 +93,7 @@ def delete_chat(
     db.commit()
     return
 
-@router.patch("/{chat_id}", response_model=ChatResponse)
+@router.patch("/{chat_id}", response_model=ChatResponse,status_code=status.HTTP_201_CREATED)
 async def update_chat(
     chat_id: int,
     data: ChatCreate,

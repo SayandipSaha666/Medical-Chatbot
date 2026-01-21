@@ -12,7 +12,7 @@ const ChatList = () => {
       const token = await getToken();
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chats`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/chats/${chatId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
