@@ -1,79 +1,109 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import fetchWithAuth from "../../utils/fetchWithAuth";
+import { useAuth } from "../../context/AuthContext";
+import { chatAPI, messageAPI } from "../../services/api";
 
 function DashboardPage() {
   const navigate = useNavigate();
-
+  const { token, loading: authLoading } = useAuth();
   const [chats, setChats] = useState([]);
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !token) {
+      navigate('/login');
+    }
+  }, [token, authLoading, navigate]);
+
   /* ---------------- Fetch all chats ---------------- */
   useEffect(() => {
-    fetchWithAuth("/api/chats")
-      .then((res) => res.json())
-      .then((data) => setChats(data))
-      .catch(console.error);
-  }, []);
+    if (!token) return;
+
+    const fetchChats = async () => {
+      try {
+        const data = await chatAPI.getChats();
+        setChats(data);
+      } catch (error) {
+        console.error('Error fetching chats:', error);
+      }
+    };
+
+    fetchChats();
+  }, [token]);
 
   /* ---------------- Load messages when chat changes ---------------- */
   useEffect(() => {
-    if (!chatId) return;
+    if (!chatId || !token) return;
 
-    fetchWithAuth(`/api/chats/${chatId}/messages`)
-      .then((res) => res.json())
-      .then((data) => setMessages(data))
-      .catch(console.error);
-  }, [chatId]);
+    const fetchMessages = async () => {
+      try {
+        const data = await messageAPI.getMessages(chatId);
+        setMessages(data);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    fetchMessages();
+  }, [chatId, token]);
 
   /* ---------------- Create chat if needed ---------------- */
   const createChat = async () => {
-    const res = await fetchWithAuth("/api/chats", {
-      method: "POST",
-      body: JSON.stringify({ title: "New Chat" }),
-    });
+    if (!token) return;
 
-    const chat = await res.json();
-    setChats((prev) => [chat, ...prev]);
-    setChatId(chat.id);
+    try {
+      const chat = await chatAPI.createChat({ title: "New Chat" });
+      setChats((prev) => [chat, ...prev]);
+      setChatId(chat.id);
 
-    // Optional: navigate to chat page
-    navigate(`/dashboard/chats/${chat.id}`);
-    return chat.id;
+      // Navigate to the new chat
+      navigate(`/dashboard/chats/${chat.id}`);
+      return chat.id;
+    } catch (error) {
+      console.error('Error creating chat:', error);
+      return null;
+    }
   };
 
   /* ---------------- Send message ---------------- */
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !token) return;
 
     setLoading(true);
 
     let activeChatId = chatId;
     if (!activeChatId) {
       activeChatId = await createChat();
+      if (!activeChatId) {
+        setLoading(false);
+        return;
+      }
     }
 
     // Optimistic user message
     setMessages((prev) => [
       ...prev,
-      { role: "user", content: newMessage },
+      { role: "user", content: newMessage, id: Date.now() } // Using timestamp as temporary ID
     ]);
 
-    const res = await fetchWithAuth(
-      `/api/chats/${activeChatId}/messages`,
-      {
-        method: "POST",
-        body: JSON.stringify({ content: newMessage }),
-      }
-    );
+    try {
+      const data = await messageAPI.sendMessage(activeChatId, { content: newMessage });
+      setMessages(prev => {
+        // Remove the optimistic message and add both user and assistant messages
+        const updatedMessages = prev.filter(msg => msg.id !== Date.now());
+        return [...updatedMessages, data];
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Remove the optimistic message in case of error
+      setMessages(prev => prev.filter(msg => msg.id !== Date.now()));
+    }
 
-    const data = await res.json();
-
-    setMessages((prev) => [...prev, data]);
     setNewMessage("");
     setLoading(false);
   };
@@ -95,7 +125,7 @@ function DashboardPage() {
       <div className="w-[50%] flex flex-col gap-4 mb-6 overflow-y-auto">
         {messages.map((msg, idx) => (
           <div
-            key={idx}
+            key={msg.id || idx}
             className={`p-4 rounded-xl ${
               msg.role === "user"
                 ? "bg-[#217bfe] self-end text-white"

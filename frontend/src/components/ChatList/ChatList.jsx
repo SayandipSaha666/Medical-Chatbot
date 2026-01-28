@@ -1,31 +1,22 @@
 import { Link } from "react-router-dom";
 import "./ChatList.css";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
+import { chatAPI } from "../../services/api";
 
 const ChatList = () => {
-  const { getToken } = useAuth();
+  const { token } = useAuth();
 
   const { isPending, error, data } = useQuery({
     queryKey: ["userChats"],
     queryFn: async () => {
-      const token = await getToken();
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chats/${chatId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch chats");
+      if (!token) {
+        throw new Error("Not authenticated");
       }
 
-      return res.json();
+      return chatAPI.getChats();
     },
+    enabled: !!token, // Only run query if token exists
   });
 
   return (
@@ -51,7 +42,7 @@ const ChatList = () => {
 
         {data?.map((chat) => (
           <Link
-            to={`/dashboard/chat/${chat.id}`}
+            to={`/dashboard/chats/${chat.id}`}
             key={chat.id}
             className="chatItem"
           >

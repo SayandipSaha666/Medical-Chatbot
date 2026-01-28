@@ -123,16 +123,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 import NewPrompt from "../../components/NewPrompt/NewPrompt";
-import { sendMessage, checkBackendHealth } from "../../services/chatService";
-
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+import { chatAPI, messageAPI, healthCheck } from "../../services/api";
 
 function ChatPage() {
   const { id } = useParams(); // chat id from route
   const navigate = useNavigate();
-  const { getToken } = useAuth();
+  const { token, loading: authLoading } = useAuth();
 
   const [chatId, setChatId] = useState(id || null);
   const [messages, setMessages] = useState([]);
@@ -141,67 +139,55 @@ function ChatPage() {
   const [backendError, setBackendError] = useState(null);
   const endref = useRef(null);
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !token) {
+      navigate('/login');
+    }
+  }, [token, authLoading, navigate]);
+
   /* ---------------- Backend Health Check ---------------- */
   useEffect(() => {
+    if (!token) return;
+
     const initBackend = async () => {
       try {
-        await checkBackendHealth();
+        await healthCheck();
         setBackendReady(true);
       } catch (err) {
+        setBackendReady(false);
         setBackendError(err.message);
       }
     };
     initBackend();
-  }, []);
+  }, [token]);
 
   /* ---------------- Chat Init / Load ---------------- */
   useEffect(() => {
-    if (!backendReady) return;
+    if (!backendReady || !token || !chatId) return;
 
     const initChat = async () => {
-      const token = await getToken({ template: "backend" });
+      try {
+        // Load messages for the chat
+        const data = await messageAPI.getMessages(chatId);
+        setMessages(data);
+      } catch (error) {
+        console.error('Error loading messages:', error);
 
-      // 1️⃣ If chatId exists → load messages
-      if (chatId) {
+        // If there's an error loading messages, create a new chat
         try {
-          const res = await fetch(
-            `${API_URL}/api/chats/${chatId}/messages`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (res.ok) {
-            const data = await res.json();
-            setMessages(data);
-            return;
-          }
-        } catch {
-          // fallthrough → create new chat
+          const newChat = await chatAPI.createChat({ title: "New Chat" });
+          setChatId(newChat.id);
+          navigate(`/dashboard/chats/${newChat.id}`, { replace: true });
+          setMessages([]);
+        } catch (createError) {
+          console.error('Error creating new chat:', createError);
         }
       }
-
-      // 2️⃣ Else create new chat
-      const res = await fetch(`${API_URL}/api/chats`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ title: "New Chat" }),
-      });
-
-      const chat = await res.json();
-
-      setChatId(chat.id);
-      navigate(`/dashboard/chats/${chat.id}`, { replace: true });
-      setMessages([]);
     };
 
     initChat();
-  }, [backendReady, chatId, getToken, navigate]);
+  }, [backendReady, chatId, token, navigate]);
 
   /* ---------------- Auto-scroll ---------------- */
   useEffect(() => {
@@ -210,7 +196,7 @@ function ChatPage() {
 
   /* ---------------- Send Message ---------------- */
   const handleNewMessage = async (text) => {
-    if (!text.trim() || !chatId) return;
+    if (!text.trim() || !chatId || !token) return;
 
     try {
       setIsLoading(true);
@@ -218,18 +204,16 @@ function ChatPage() {
       // Show user message immediately
       setMessages((prev) => [
         ...prev,
-        { content: text, role: "user" },
+        { content: text, role: "user", id: Date.now() },
       ]);
 
-      const token = await getToken({ template: "backend" });
+      const assistantMessage = await messageAPI.sendMessage(chatId, { content: text });
 
-      const assistantMessage = await sendMessage({
-        chatId,
-        message: text,
-        token,
+      setMessages((prev) => {
+        // Remove the optimistic message and add both user and assistant messages
+        const updatedMessages = prev.filter(msg => msg.id !== Date.now());
+        return [...updatedMessages, assistantMessage];
       });
-
-      setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -257,7 +241,7 @@ function ChatPage() {
         <div className="w-[50%] flex flex-col gap-5">
           {messages.map((msg, idx) => (
             <div
-              key={idx}
+              key={msg.id || idx}
               className={`message ${msg.role === "user" ? "user" : ""}`}
             >
               {msg.role === "assistant" ? (

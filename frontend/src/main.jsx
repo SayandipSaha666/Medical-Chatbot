@@ -54,7 +54,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 import HomePage from "./routes/HomePage/HomePage.jsx";
 import ChatPage from "./routes/ChatPage/ChatPage.jsx";
@@ -77,14 +77,14 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <HomePage />,
-      },
-      {
-        path: "/sign-in/*",
         element: <SignInPage />,
       },
       {
-        path: "/sign-up/*",
+        path: "/login",
+        element: <SignInPage />,
+      },
+      {
+        path: "/signup",
         element: <SignUpPage />,
       },
       {
@@ -107,10 +107,10 @@ const router = createBrowserRouter([
 /* -------------------- Render -------------------- */
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+    <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-    </ClerkProvider>
+    </AuthProvider>
   </StrictMode>
 );

@@ -1,7 +1,7 @@
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 
 const Upload = ({ chatId, setImg }) => {
-  const { getToken } = useAuth();
+  const { token } = useAuth();
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -10,7 +10,6 @@ const Upload = ({ chatId, setImg }) => {
     setImg((prev) => ({ ...prev, isLoading: true }));
 
     try {
-      const token = await getToken();
       const formData = new FormData();
       formData.append("file", file);
 

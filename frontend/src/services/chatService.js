@@ -1,13 +1,12 @@
 // src/services/chatService.jsx
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-export const sendMessage = async ({ chatId, message, token }) => {
+export const sendMessage = async ({ chatId, message }) => {
   console.log("[FRONTEND] Sending message:", message);
-    console.log("Clerk token:", token);
-  console.log(
-    "Calling API:",
-    `${API_URL}/api/chats/${chatId}/messages`
-  );
+  console.log("Calling API:", `${API_URL}/api/chats/${chatId}/messages`);
+
+  // Get token from localStorage
+  const token = localStorage.getItem('token');
 
   const response = await fetch(
     `${API_URL}/api/chats/${chatId}/messages`,
@@ -15,7 +14,7 @@ export const sendMessage = async ({ chatId, message, token }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Clerk JWT
+        Authorization: `Bearer ${token}`, // ✅ JWT Token
       },
       body: JSON.stringify({
         content: message,
