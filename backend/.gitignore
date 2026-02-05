@@ -223,3 +223,4 @@ railway.toml
 render.yaml
 .requirements.txt
 .README.md
+.pytest_cache

@@ -3,15 +3,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker,declarative_base
 from .config import settings
 from urllib.parse import quote
+import models # To automatically define database in neondb whenever this file is run.
+# encoded_password = quote(settings.database_password)
 
-encoded_password = quote(settings.database_password)
+# SQLALCHEMY_DATABASE_URL = (
+#     f"postgresql://{settings.database_username}:{encoded_password}"
+#     f"@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
+# )
 
-SQLALCHEMY_DATABASE_URL = (
-    f"postgresql://{settings.database_username}:{encoded_password}"
-    f"@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
-)
-
-# SQLALCHEMY_DATABASE_URL=settings.sqlalchemy_database_url
+SQLALCHEMY_DATABASE_URL=settings.sqlalchemy_database_url
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
