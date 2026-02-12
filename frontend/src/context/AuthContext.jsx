@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -10,16 +10,36 @@ export const useAuth = () => {
   return context;
 };
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+const fetchWithTimeout = async (url, options = {}, timeout = 30000) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw error;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on initial load
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      // Verify token validity by calling user profile endpoint
       fetchUserProfile(storedToken);
     } else {
       setLoading(false);
@@ -28,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/login`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -40,8 +60,14 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Login failed');
+        } else {
+          const text = await response.text();
+          throw new Error(text || `HTTP ${response.status}: Login failed`);
+        }
       }
 
       const data = await response.json();
@@ -50,19 +76,18 @@ export const AuthProvider = ({ children }) => {
       setToken(accessToken);
       localStorage.setItem('token', accessToken);
       
-      // Fetch user profile after successful login
       await fetchUserProfile(accessToken);
       
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[Auth] Login error:', error);
       return { success: false, error: error.message };
     }
   };
 
   const register = async (name, email, password) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/signup`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/users/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,14 +100,20 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Registration failed');
+        } else {
+          const text = await response.text();
+          throw new Error(text || `HTTP ${response.status}: Registration failed`);
+        }
       }
 
       const userData = await response.json();
       return { success: true, user: userData };
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('[Auth] Registration error:', error);
       return { success: false, error: error.message };
     }
   };
@@ -95,7 +126,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (authToken) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/users/me`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -108,8 +139,7 @@ export const AuthProvider = ({ children }) => {
       const userData = await response.json();
       setUser(userData);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Clear invalid token
+      console.error('[Auth] Error fetching user profile:', error);
       logout();
     } finally {
       setLoading(false);

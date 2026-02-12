@@ -132,7 +132,6 @@ function ChatPage() {
   const navigate = useNavigate();
   const { token, loading: authLoading } = useAuth();
 
-  const [chatId, setChatId] = useState(id || null);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [backendReady, setBackendReady] = useState(false);
@@ -164,30 +163,22 @@ function ChatPage() {
 
   /* ---------------- Chat Init / Load ---------------- */
   useEffect(() => {
-    if (!backendReady || !token || !chatId) return;
+    if (!backendReady || !token || !id) return;
 
     const initChat = async () => {
       try {
         // Load messages for the chat
-        const data = await messageAPI.getMessages(chatId);
+        const data = await messageAPI.getMessages(id);
         setMessages(data);
       } catch (error) {
         console.error('Error loading messages:', error);
-
-        // If there's an error loading messages, create a new chat
-        try {
-          const newChat = await chatAPI.createChat({ title: "New Chat" });
-          setChatId(newChat.id);
-          navigate(`/dashboard/chats/${newChat.id}`, { replace: true });
-          setMessages([]);
-        } catch (createError) {
-          console.error('Error creating new chat:', createError);
-        }
+        // If there's an error loading messages, initialize with empty messages
+        setMessages([]);
       }
     };
 
     initChat();
-  }, [backendReady, chatId, token, navigate]);
+  }, [backendReady, id, token, navigate]);
 
   /* ---------------- Auto-scroll ---------------- */
   useEffect(() => {
@@ -196,23 +187,27 @@ function ChatPage() {
 
   /* ---------------- Send Message ---------------- */
   const handleNewMessage = async (text) => {
-    if (!text.trim() || !chatId || !token) return;
+    if (!text.trim() || !id || !token) return;
 
     try {
       setIsLoading(true);
 
       // Show user message immediately
+      const tempMessageId = Date.now();
       setMessages((prev) => [
         ...prev,
-        { content: text, role: "user", id: Date.now() },
+        { content: text, role: "user", id: tempMessageId },
       ]);
 
-      const assistantMessage = await messageAPI.sendMessage(chatId, { content: text });
+      const response = await messageAPI.sendMessage(id, { content: text });
 
       setMessages((prev) => {
         // Remove the optimistic message and add both user and assistant messages
-        const updatedMessages = prev.filter(msg => msg.id !== Date.now());
-        return [...updatedMessages, assistantMessage];
+        const updatedMessages = prev.filter(msg => msg.id !== tempMessageId);
+        return [...updatedMessages, 
+          { content: text, role: "user", id: response.user_message_id || tempMessageId }, 
+          response
+        ];
       });
     } catch (err) {
       setMessages((prev) => [

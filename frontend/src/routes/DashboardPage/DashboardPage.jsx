@@ -7,10 +7,6 @@ function DashboardPage() {
   const navigate = useNavigate();
   const { token, loading: authLoading } = useAuth();
   const [chats, setChats] = useState([]);
-  const [chatId, setChatId] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -35,78 +31,22 @@ function DashboardPage() {
     fetchChats();
   }, [token]);
 
-  /* ---------------- Load messages when chat changes ---------------- */
-  useEffect(() => {
-    if (!chatId || !token) return;
 
-    const fetchMessages = async () => {
-      try {
-        const data = await messageAPI.getMessages(chatId);
-        setMessages(data);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    };
-
-    fetchMessages();
-  }, [chatId, token]);
-
-  /* ---------------- Create chat if needed ---------------- */
+  /* ---------------- Create new chat and navigate to it ---------------- */
   const createChat = async () => {
     if (!token) return;
 
     try {
       const chat = await chatAPI.createChat({ title: "New Chat" });
       setChats((prev) => [chat, ...prev]);
-      setChatId(chat.id);
-
-      // Navigate to the new chat
+      
+      // Navigate directly to the ChatPage for the new chat
       navigate(`/dashboard/chats/${chat.id}`);
-      return chat.id;
     } catch (error) {
       console.error('Error creating chat:', error);
-      return null;
     }
   };
 
-  /* ---------------- Send message ---------------- */
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !token) return;
-
-    setLoading(true);
-
-    let activeChatId = chatId;
-    if (!activeChatId) {
-      activeChatId = await createChat();
-      if (!activeChatId) {
-        setLoading(false);
-        return;
-      }
-    }
-
-    // Optimistic user message
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: newMessage, id: Date.now() } // Using timestamp as temporary ID
-    ]);
-
-    try {
-      const data = await messageAPI.sendMessage(activeChatId, { content: newMessage });
-      setMessages(prev => {
-        // Remove the optimistic message and add both user and assistant messages
-        const updatedMessages = prev.filter(msg => msg.id !== Date.now());
-        return [...updatedMessages, data];
-      });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      // Remove the optimistic message in case of error
-      setMessages(prev => prev.filter(msg => msg.id !== Date.now()));
-    }
-
-    setNewMessage("");
-    setLoading(false);
-  };
 
   /* ---------------- UI ---------------- */
   return (
@@ -119,51 +59,33 @@ function DashboardPage() {
             MedGPT
           </h1>
         </div>
-      </div>
-
-      {/* Messages */}
-      <div className="w-[50%] flex flex-col gap-4 mb-6 overflow-y-auto">
-        {messages.map((msg, idx) => (
-          <div
-            key={msg.id || idx}
-            className={`p-4 rounded-xl ${
-              msg.role === "user"
-                ? "bg-[#217bfe] self-end text-white"
-                : "bg-[#2c2937] self-start text-[#ececec]"
-            }`}
-          >
-            {msg.role === "assistant" ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: msg.content }}
-              />
-            ) : (
-              msg.content
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Input */}
-      <div className="mt-auto w-[50%] bg-[#2c2937] rounded-2xl flex">
-        <form
-          onSubmit={handleSend}
-          className="w-full h-full flex items-center justify-between gap-5 mb-3"
-        >
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Ask me anything..."
-            className="flex-1 p-5 bg-transparent text-[#ececec] border-none outline-none"
-          />
+        
+        {/* Chat List */}
+        <div className="w-full max-w-md">
+          <h2 className="text-xl text-white mb-4">Your Chats</h2>
+          {chats.length === 0 ? (
+            <p className="text-gray-400">No chats yet. Start a new conversation!</p>
+          ) : (
+            <ul className="space-y-2">
+              {chats.map((chat) => (
+                <li 
+                  key={chat.id}
+                  className="p-3 bg-gray-700 rounded-lg text-white cursor-pointer hover:bg-gray-600"
+                  onClick={() => navigate(`/dashboard/chats/${chat.id}`)}
+                >
+                  {chat.title}
+                </li>
+              ))}
+            </ul>
+          )}
+          
           <button
-            type="submit"
-            disabled={loading}
-            className="bg-[#605e68] rounded-full p-3 flex items-center justify-center mr-5"
+            onClick={createChat}
+            className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
           >
-            <img src="/arrow.png" alt="submit" className="w-8" />
+            + New Chat
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

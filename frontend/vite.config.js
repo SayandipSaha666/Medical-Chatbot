@@ -10,6 +10,16 @@ export default defineConfig({
     port: 5173,
     allowedHosts: [
     '.trycloudflare.com'
-    ]
+    ],
+    proxy: {
+      '/api': {
+        target: 'http://backend:8080',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://backend:8080',
+        changeOrigin: true,
+      },
+    }
   }
 })
