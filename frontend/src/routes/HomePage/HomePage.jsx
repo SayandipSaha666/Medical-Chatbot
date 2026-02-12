@@ -27,9 +27,3 @@ function HomePage() {
 }
 
 export default HomePage
-
-/*
-  <div className='HomePage'>
-    <Link to="/dashboard">Dashboard</Link>
-  </div>
-*/

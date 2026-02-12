@@ -1,0 +1,19 @@
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - backend/.env
+    environment:
+      - SQLALCHEMY_DATABASE_URL="put your neon postgres instance database url here"
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - frontend/.env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend

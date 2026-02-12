@@ -14,7 +14,7 @@ export const sendMessage = async ({ chatId, message }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // ✅ JWT Token
+        Authorization: `Bearer ${token}`, // JWT Token
       },
       body: JSON.stringify({
         content: message,
@@ -31,7 +31,7 @@ export const sendMessage = async ({ chatId, message }) => {
     throw new Error(errorMsg);
   }
 
-  // ✅ Backend returns MessageOut JSON
+  // Backend returns MessageOut JSON
   return await response.json();
 };
 
