@@ -4,6 +4,7 @@ import ChatPage from './routes/ChatPage/ChatPage';
 import DashboardPage from './routes/DashboardPage/DashboardPage';
 import LoginPage from './routes/SignInpage/SignInPage';
 import SignupPage from './routes/SignUpPage/SignUpPage';
+import DashBoardLayout from './Layouts/DashBoardLayout/DashBoardLayout';
 
 function App() {
   return (
@@ -12,8 +13,10 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/dashboard/chats/:id" element={<ChatPage />} />
+        <Route path="/dashboard" element={<DashBoardLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="chats/:id" element={<ChatPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
