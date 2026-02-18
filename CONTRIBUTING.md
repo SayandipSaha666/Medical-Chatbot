@@ -9,8 +9,9 @@ Thank you for your interest in contributing to MedGPT! This document outlines th
 - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [Code Style](#code-style)
-- [Issues and Contributions](#issues-and-contributions)
-- [Submitting Changes](#submitting-changes)
+- [Contribution Guidelines](#contribution-guidelines)
+- [Submitting Pull Request](#submitting-a-pull-request)
+- [Commit Message Conventions](#commit-message-convention)
 - [Pull Request Requirements](#pull-request-requirements)
 - [Community Guidelines](#community-guidelines)
 
@@ -18,9 +19,29 @@ Thank you for your interest in contributing to MedGPT! This document outlines th
 
 Before you begin contributing, please familiarize yourself with the project:
 
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/MedGPT.git`
-3. Create a branch for your changes: `git checkout -b feature/your-feature-name`
+### 1️⃣ Fork the Repository
+**Star** the repo and Click the **Fork** button at the top-right of the repository page.
+
+### 2️⃣ Clone Your Fork
+``` bash
+git clone https://github.com/YOUR_USERNAME/Medical-Chatbot.git
+cd Medical-Chatbot
+```
+
+## 3️⃣ Create a new branch for your work
+
+- Always create a new branch for your work
+``` bash
+git checkout -b feature/your-feature-name
+```
+- Branch Naming Examples
+
+   - `feature/summary-history`
+   - `fix/content-extraction`
+   - `ui/dark-mode-update`
+   - `docs/update-readme`
+
+---
 
 ## Project Structure
 
@@ -176,38 +197,63 @@ npm run dev
 - Use descriptive variable and function names
 - Keep components focused on a single responsibility
 
-## Issues and Contributions
+## Contribution Guidelines
 
-We welcome contributions of all kinds! Below are some areas where you can contribute:
+### 🐞 Bug Fixes
 
-### Help Wanted Issues
+- Check existing issues before creating a new one
+- Clearly describe the problem and solution
+- Include steps to reproduce (if applicable)
 
-These are more complex issues that require significant effort but offer great value to the project:
+### 🚀 New Features
 
-- **Enhance UI/UX**: Improve the overall user interface and user experience of the application with modern design principles and responsive layouts.
-- **Stripe Subscription Module**: Implement a comprehensive subscription system using Stripe for premium features and recurring payments.
-- **Microservices Architecture**: Refactor the monolithic application into a microservices architecture to improve performance, scalability, and maintainability.
-- **Agent-Based Services**: Integrate web scraping capabilities to fetch external medical resources and information for enhanced RAG responses.
-- **MCP Server Integration**: Develop a Medical Control Panel (MCP) server to connect with external hospital APIs for automated appointment booking functionality.
-- **Multimodal Support**: Enhance the application to handle multiple data types including text, images, PDFs, and other medical documents for comprehensive analysis.
+- Keep features small and focused
+- Follow the existing project structure
+- Open an issue before starting (recommended)
 
-### Good First Issues
+### 📚 Documentation
 
-These are beginner-friendly issues perfect for newcomers to the project:
+- Improve clarity and accuracy
+- Fix typos or outdated information
+- Add comments where logic is complex
 
-- **Chat List Implementation**: Implement a chat list sidebar to display previous conversations and enable navigation between them.
-- **UI Enhancement**: Improve the visual design and user experience of existing components.
-- **File Upload Support**: Add functionality to upload PDFs, images, and other document types to the chat interface.
-- **ImageKit Integration**: Implement ImageKit for storing and managing uploaded images and documents.
+---
 
-## Submitting Changes
+## Submitting a Pull Request
 
-1. Ensure your code follows the project's style guidelines
-2. Add tests for new functionality if applicable
-3. Update documentation as needed
-4. Commit your changes with a clear, descriptive commit message
-5. Push your branch to your fork: `git push origin feature/your-feature-name`
-6. Open a pull request to the main repository
+1. Commit your changes with a clear message:
+```bash
+git commit -m "feat: add summary history feature"
+```
+2. Push to your fork:
+```bash
+git push origin feature/your-feature-name
+```
+3. Open a Pull Request to the main branch
+
+### PR Description Should Include:
+
+- What the change does
+- Why it’s needed
+- Screenshots (for UI changes)
+
+---
+
+## Commit Message Convention
+
+Use the following prefixes:
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation
+- `ui`: UI/UX changes
+- `refactor`: Code improvements
+
+Example:
+```bash
+fix: handle empty content extraction
+```
+
+---
 
 ## Pull Request Requirements
 
@@ -216,7 +262,6 @@ When submitting a pull request, mentors expect the following:
 - **Clear Description**: Provide a detailed explanation of what your PR does and why it's needed
 - **Screenshots/Demo**: Include screenshots or a video demo showing the changes (especially for UI enhancements)
 - **Linked Issue**: Reference the issue your PR addresses using `Fixes #issue-number` or `Closes #issue-number`
-- **Tests Passing**: Ensure all existing tests pass and add new tests if introducing new functionality
 - **Code Quality**: Follow the established code style and best practices for both frontend and backend
 
 ### PR Review Process
@@ -241,4 +286,6 @@ If you have questions about contributing to MedGPT:
 - Create a new issue if your question isn't addressed
 - Be sure to tag your issue appropriately
 
-Thank you for contributing to MedGPT!
+Thank you for contributing to MedGPT 🚀🚀!
+
+⭐ *If you like this project, don’t forget to star the repository!*
