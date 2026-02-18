@@ -286,6 +286,6 @@ If you have questions about contributing to MedGPT:
 - Create a new issue if your question isn't addressed
 - Be sure to tag your issue appropriately
 
-Thank you for contributing to MedGPT 🚀🚀!
+Thank you for contributing to MedGPT 🚀🚀!!
 
 ⭐ *If you like this project, don’t forget to star the repository!*
