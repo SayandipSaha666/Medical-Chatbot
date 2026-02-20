@@ -46,6 +46,7 @@ def load_pdf(folder):
     return docs
 
 
+
 def filter_documents(docs):
     minimal_docs: List[Document] = []
     for doc in docs:
