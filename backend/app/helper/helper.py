@@ -14,7 +14,7 @@ from langchain.retrievers.contextual_compression import ContextualCompressionRet
 from langchain.retrievers.document_compressors import LLMChainExtractor
 # Open Source Models
 from langchain_groq import ChatGroq
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 # Import runnables
 from langchain.schema.runnable import RunnableParallel,RunnablePassthrough,RunnableLambda
 # Loading data from .env files
@@ -28,11 +28,10 @@ def load_llm(model):
     )
     return llm
 
-# Load Embedding Model
+# Load Embedding Model (uses HuggingFace Inference API — no local torch/model download)
 def load_embedding_model(embedding_model):
-    embedding = HuggingFaceEmbeddings(
-        model_name=embedding_model,
-        encode_kwargs={'normalize_embeddings': True}
+    embedding = HuggingFaceEndpointEmbeddings(
+        model=embedding_model,
     )
     return embedding
 

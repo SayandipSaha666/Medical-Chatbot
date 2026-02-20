@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
 from urllib.parse import quote
-from . import models
 
 SQLALCHEMY_DATABASE_URL = settings.sqlalchemy_database_url
 
