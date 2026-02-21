@@ -9,6 +9,7 @@ import SignUpPage from "./routes/SignUpPage/SignUpPage.jsx";
 import RootLayout from "./Layouts/RootLayout/RootLayout.jsx";
 import DashBoardLayout from "./Layouts/DashBoardLayout/DashBoardLayout.jsx";
 import './App.css';
+import { Analytics } from "@vercel/analytics/react"
 
 function CustomRoutes() {
   const routes = useRoutes([
@@ -50,7 +51,13 @@ function CustomRoutes() {
 
 function App() {
 
-  return <CustomRoutes />;
+  return (
+    <>
+      <Analytics />
+      <CustomRoutes />
+    </>
+
+  )
 }
 
 export default App;
