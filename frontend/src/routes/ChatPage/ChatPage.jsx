@@ -109,7 +109,7 @@ function ChatPage() {
         </div>
       )}
 
-      <div className="flex-1 overflow-scroll w-full flex justify-center">
+      <div className="flex-1 overflow-auto w-full flex justify-center">
         <div className="w-[50%] flex flex-col gap-5">
           {messages.map((msg, idx) => (
             <div
