@@ -70,7 +70,6 @@ function SignUpPage() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your full name"
             />
           </div>
@@ -86,7 +85,6 @@ function SignUpPage() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your email"
             />
           </div>
@@ -102,7 +100,6 @@ function SignUpPage() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
             />
           </div>
